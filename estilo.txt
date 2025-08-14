@@ -1,0 +1,12 @@
+PascalCase
+    clases, propiedades
+cammelCase
+    variables, métodos
+SNAKE_CASE
+    constantes
+kebab-case lisp-case
+    XML, HTML, JSON
+
+
+TODOS LAS CLASES COMO SUSTANTIVOS SINGULARES
+MÉTODOS COMO VERBOS
