@@ -8,7 +8,7 @@
 #include<vector>
 #include<sstream>
 #include<print>
-#include <algorithm>
+#include<algorithm>
 
 class RandomNumberSum {
     private:
