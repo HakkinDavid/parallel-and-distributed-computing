@@ -8,6 +8,7 @@
 #include<vector>
 #include<sstream>
 #include<print>
+#include <algorithm>
 
 class RandomNumberSum {
     private:
@@ -64,47 +65,7 @@ class RandomNumberSum {
         }
 };
 
-class GlobalSum {
-    private:
-        bool busy;
-        std::shared_ptr<RandomNumberSum> maxSum;
-        std::mutex mutex;
-        std::condition_variable processing;
-    public:
-        void request() {
-            {
-                std::unique_lock lock(mutex);
-                processing.wait(lock, [&] {return !busy;});
-                busy = true;
-            }
-        }
-        bool update(std::shared_ptr<RandomNumberSum> &localSum) {
-            if (maxSum == nullptr || maxSum->Sum() < localSum->Sum()) {
-                maxSum = localSum;
-                std::println("{} is currently the greatest sum so far.", maxSum->Name());
-                return true;
-            }
-            return false;
-        }
-        void release() {
-            busy = false;
-            processing.notify_one();
-        }
-
-        bool Busy () const {
-            return busy;
-        }
-        std::shared_ptr<RandomNumberSum> &MaxSum() {
-            return maxSum;
-        }
-
-        GlobalSum() {
-           maxSum = nullptr;
-        }
-};
-
 int main() {
-    GlobalSum globalSum;
     std::vector<std::shared_ptr<RandomNumberSum>> randomSums = {
         std::make_shared<RandomNumberSum>(100, 1, 1000, "Thread 1's sum"),
         std::make_shared<RandomNumberSum>(100, 1, 1000, "Thread 2's sum"),
@@ -115,87 +76,57 @@ int main() {
         std::make_shared<RandomNumberSum>(100, 1, 1000, "Thread 7's sum"),
         std::make_shared<RandomNumberSum>(100, 1, 1000, "Thread 8's sum"),
         std::make_shared<RandomNumberSum>(100, 1, 1000, "Thread 9's sum"),
-        std::make_shared<RandomNumberSum>(100, 1, 1000, "Thread 1's sum0")
+        std::make_shared<RandomNumberSum>(100, 1, 1000, "Thread 10's sum")
     };
 
     std::thread thread1([&]() {
         randomSums.at(0)->executeRandomSum();
-        std::println("Thread 1 finalized with result {}.", randomSums[0]->getHumanReadableSum());
-        globalSum.request();
-        globalSum.update(randomSums.at(0));
-        globalSum.release();
+        std::println("Thread 1 finalized as follows\n{}.\n", randomSums[0]->getHumanReadableSum());
     });
 
     std::thread thread2([&]() {
         randomSums.at(1)->executeRandomSum();
-        std::println("Thread 2 finalized with result {}.", randomSums[1]->getHumanReadableSum());
-        globalSum.request();
-        globalSum.update(randomSums.at(1));
-        globalSum.release();
+        std::println("Thread 2 finalized as follows\n{}.\n", randomSums[1]->getHumanReadableSum());
     });
 
     std::thread thread3([&]() {
         randomSums.at(2)->executeRandomSum();
-        std::println("Thread 3 finalized with result {}.", randomSums[2]->getHumanReadableSum());
-        globalSum.request();
-        globalSum.update(randomSums.at(2));
-        globalSum.release();
+        std::println("Thread 3 finalized as follows\n{}.\n", randomSums[2]->getHumanReadableSum());
     });
 
     std::thread thread4([&]() {
         randomSums.at(3)->executeRandomSum();
-        std::println("Thread 4 finalized with result {}.", randomSums[3]->getHumanReadableSum());
-        globalSum.request();
-        globalSum.update(randomSums.at(3));
-        globalSum.release();
+        std::println("Thread 4 finalized as follows\n{}.\n", randomSums[3]->getHumanReadableSum());
     });
 
     std::thread thread5([&]() {
         randomSums.at(4)->executeRandomSum();
-        std::println("Thread 5 finalized with result {}.", randomSums[4]->getHumanReadableSum());
-        globalSum.request();
-        globalSum.update(randomSums.at(4));
-        globalSum.release();
+        std::println("Thread 5 finalized as follows\n{}.\n", randomSums[4]->getHumanReadableSum());
     });
 
     std::thread thread6([&]() {
         randomSums.at(5)->executeRandomSum();
-        std::println("Thread 6 finalized with result {}.", randomSums[5]->getHumanReadableSum());
-        globalSum.request();
-        globalSum.update(randomSums.at(5));
-        globalSum.release();
+        std::println("Thread 6 finalized as follows\n{}.\n", randomSums[5]->getHumanReadableSum());
     });
 
     std::thread thread7([&]() {
         randomSums.at(6)->executeRandomSum();
-        std::println("Thread 7 finalized with result {}.", randomSums[6]->getHumanReadableSum());
-        globalSum.request();
-        globalSum.update(randomSums.at(6));
-        globalSum.release();
+        std::println("Thread 7 finalized as follows\n{}.\n", randomSums[6]->getHumanReadableSum());
     });
 
     std::thread thread8([&]() {
         randomSums.at(7)->executeRandomSum();
-        std::println("Thread 8 finalized with result {}.", randomSums[7]->getHumanReadableSum());
-        globalSum.request();
-        globalSum.update(randomSums.at(7));
-        globalSum.release();
+        std::println("Thread 8 finalized as follows\n{}.\n", randomSums[7]->getHumanReadableSum());
     });
 
     std::thread thread9([&]() {
         randomSums.at(8)->executeRandomSum();
-        std::println("Thread 9 finalized with result {}.", randomSums[8]->getHumanReadableSum());
-        globalSum.request();
-        globalSum.update(randomSums.at(8));
-        globalSum.release();
+        std::println("Thread 9 finalized as follows\n{}.\n", randomSums[8]->getHumanReadableSum());
     });
 
     std::thread thread10([&]() {
         randomSums.at(9)->executeRandomSum();
-        std::println("Thread 10 finalized with result {}.", randomSums[9]->getHumanReadableSum());
-        globalSum.request();
-        globalSum.update(randomSums.at(9));
-        globalSum.release();
+        std::println("Thread 10 finalized as follows\n{}.\n", randomSums[9]->getHumanReadableSum());
     });
 
     thread1.join();
@@ -209,7 +140,11 @@ int main() {
     thread9.join();
     thread10.join();
 
-    std::println("\nGreatest sum of all was {} with value {}.", globalSum.MaxSum()->Name(), globalSum.MaxSum()->Sum());
+    std::sort(randomSums.begin(), randomSums.end(), [](std::shared_ptr<RandomNumberSum>& a, std::shared_ptr<RandomNumberSum>& b) {
+        return a->Sum() < b->Sum();
+    });
+
+    std::println("\nGreatest sum of all was {} with value {}.", randomSums.back()->Name(), randomSums.back()->Sum());
     
     return 0;
 }
