@@ -61,5 +61,4 @@
         "ostream": "cpp",
         "sstream": "cpp"
     },
-    "cmake.sourceDirectory": "/devenv/workspace/service/pruebas_cmake"
 }
